@@ -19,24 +19,23 @@ async function retrieveFromStorage(cacheFile) {
     let translationsCache = await json.parse(fileString)
     return translationsCache
   } catch (e) {
-    console.error(e)
     return null
   }
 }
 
 module.exports = (options) => {
   options['cacheFile'] = options['cache']
-  let { cacheFile } = options
+  let {
+    cacheFile
+  } = options
   let translationsCache = null
 
   async function getTranslationFromCache(str, language) {
-    if(!translationsCache) {
+    if (!translationsCache) {
       try {
         translationsCache = await retrieveFromStorage(cacheFile)
-        translationsCache = translationsCache || {}
-      } catch {
-        translationsCache = {}
-      }
+      } catch {}
+      translationsCache = translationsCache || {}
     }
     return translationsCache[str]
   }
@@ -46,7 +45,7 @@ module.exports = (options) => {
   }
 
   async function cacheTranslation(original, translation, language) {
-    if(!translationsCache) {
+    if (!translationsCache) {
       translationsCache = {}
     }
     translationsCache[original] = translation
@@ -54,20 +53,23 @@ module.exports = (options) => {
   }
 
   async function googleTranslate(str, language) {
-    return googleTranslateAPI(str, {to: language})
-      .then(res => res.text)
+    return googleTranslateAPI(str, {
+        to: language
+      })
+      .then(res => {
+        console.log(res);
+        return res.text;
+      })
   }
 
-  return async function(original, language) {
-    var translation = ""
+  return async function (original, language) {
+    var translation = null
     try {
       translation = await getTranslationFromCache(original, language) || await googleTranslate(original, language)
-      if(translation == null) {
-        console.error("Translation unavailable for '", original , "'")
-      }
       await cacheTranslation(original, translation)
     } catch (e) {
+      throw e
     }
-    return translation
+    return translation || ""
   }
 }

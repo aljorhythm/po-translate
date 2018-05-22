@@ -5,7 +5,7 @@ const translator = require('./translator.js')
 const nodePo = require('pofile')
 let program = require('commander')
 let pjson = require('./package.json')
- 
+
 program
   .version(pjson.version)
   .description("Homepage " + pjson.homepage)
@@ -15,23 +15,27 @@ program
   .option('-c, --cache [cache]', 'Cache file', 'translations.json')
   .parse(process.argv)
 
-let { language, cache, file, output } = program
+let {
+  language,
+  cache,
+  file,
+  output
+} = program
 
 let options = {
-  language, cache, file, output
+  language,
+  cache,
+  file,
+  output
 }
 
 Object.keys(options)
   .forEach(optionKey => {
-    if(!options[optionKey]) {
+    if (!options[optionKey]) {
       program.outputHelp((help) => "'" + optionKey + "' not supplied\n" + help)
       process.exit()
     }
   })
-
-let translate = translator({
-  cache
-})
 
 function loadPoFile(poFilename) {
   return new Promise((resolve, reject) => {
@@ -45,28 +49,41 @@ function savePoFile(po, poFilename) {
   })
 }
 
-async function main(){
-  const filename = 'zh.po'
-  const translatedFilename = 'zh_translated.po'
-  const po = await loadPoFile(filename)
-  const language = 'zh-CN'
+async function main(options) {
+  const {
+    file,
+    language,
+    cache,
+    output
+  } = options
+  const po = await loadPoFile(file)
+
+  let translate = translator({
+    cache
+  })
 
   let translationOperations = po.items.map(async (item) => {
     let original = item['msgid']
     let translation = ""
     try {
       translation = await translate(original, language)
-    } catch {}
+    } catch (e) {
+      console.error('No translation for ', original, e)
+    }
     item['msgstr'] = translation
 
     let plural_original = item['msgid_plural']
-    if(plural_original) {
-      translation = await translate(original, language)
+    if (plural_original) {
+      try {
+        translation = await translate(original, language)
+      } catch (e) {
+        console.error('No translation for ', original, e)
+      }
       item['msgstr'] = [translation]
     }
   })
   await Promise.all(translationOperations)
-  await savePoFile(po, translatedFilename)
+  await savePoFile(po, output)
 }
 
-main()
+main(options)
