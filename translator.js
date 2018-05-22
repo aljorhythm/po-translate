@@ -56,10 +56,7 @@ module.exports = (options) => {
     return googleTranslateAPI(str, {
         to: language
       })
-      .then(res => {
-        console.log(res);
-        return res.text;
-      })
+      .then(res => res.text)
   }
 
   return async function (original, language) {
