@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const createCsvWriter = require('csv-writer').createArrayCsvWriter
-const translator = require('./translate.js')
+const translator = require('./translator.js')
 const nodePo = require('pofile')
 let program = require('commander')
 let pjson = require('./package.json')

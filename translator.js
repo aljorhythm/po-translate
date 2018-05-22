@@ -14,13 +14,9 @@ async function storeToStorage(translationsCache, translations) {
 
 async function retrieveFromStorage(cacheFile) {
   try {
-    console.log('aa')
     let fileRawString = await fs.readFile(cacheFile)
-    console.log('a', cacheFile)
     let fileString = fileRawString.toString()
-    console.log(cacheFile, fileString)
     let translationsCache = await json.parse(fileString)
-    console.log('parse')
     return translationsCache
   } catch (e) {
     console.error(e)
@@ -36,12 +32,9 @@ module.exports = (options) => {
   async function getTranslationFromCache(str, language) {
     if(!translationsCache) {
       try {
-        console.log('retrieve')
         translationsCache = await retrieveFromStorage(cacheFile)
         translationsCache = translationsCache || {}
-        console.log('translation cache', translationsCache)
       } catch {
-        console.log('empty')
         translationsCache = {}
       }
     }
@@ -74,7 +67,6 @@ module.exports = (options) => {
       }
       await cacheTranslation(original, translation)
     } catch (e) {
-      console.log(e)
     }
     return translation
   }
