@@ -1,59 +1,44 @@
-const createCsvWriter = require('csv-writer').createArrayCsvWriter;
-const translate = require('google-translate-api');
-const fs = require('fs');
+const createCsvWriter = require('csv-writer').createArrayCsvWriter
+const translate = require('./translate.js')
+const nodePo = require('pofile')
 
-async function getTranslation(str) {
+let language = 'zh-CN'
+
+function loadPoFile(poFilename) {
   return new Promise((resolve, reject) => {
-    translate(str, {to: 'zh-CN'}).then(res => {
-      resolve(res.text);
-    }).catch(err => {
-        reject(err);
-    });
+    nodePo.load(poFilename, (err, po) => resolve(po))
+  })
+}
+
+function savePoFile(po, poFilename) {
+  return new Promise((resolve, reject) => {
+    po.save(poFilename, (err, po) => resolve(po))
   })
 }
 
 async function main(){
-  const file = '../inwavethemes-en_US.pot';
-  const readFile = fs.readFileSync(file).toString()
-  let slices = readFile.split("\n\r")
-  let terms = slices.slice(1)
-  let top = slices[0]
+  const filename = 'zh.po'
+  const translatedFilename = 'zh_translated.po'
+  const po = await loadPoFile(filename)
+  const language = 'zh-CN'
 
-  results = terms.map(async str => {
-    let heading = str.split("msgid")[0].trim()
-    let re = /msgid[ *]"(.*)"\r\nmsgstr[ *]"/g;
-    let matches = re.exec(str)
-    if (matches == null){
-      return ["cannot find msgid", str]
-    }
-    let msgid = matches[1]
+  let translationOperations = po.items.map(async (item) => {
+    let original = item['msgid']
+    let translation = ""
     try {
-      let translation = await getTranslation(msgid)
-      return {msgid, heading, translation}
-    } catch(error) {
-      return {msgid, heading, error}
-    }
-  })
-  results = await Promise.all(results)
-  // const csvWriter = createCsvWriter({
-  //   header: ['Original', 'Chinese'],
-  //   path: 'cn.csv'
-  // });
-  
-  // await csvWriter.writeRecords(results)
-  // console.log('...Done')
+      translation = await translate(original, language)
+    } catch {}
+    item['msgstr'] = translation
 
-  let str = top + "\r\n"
-  results.forEach(result => {
-    let { msgid="" , translation="", heading="" } = result
-    if (result.error) {
-      translation = result.error
+    let plural_original = item['msgid_plural']
+    if(plural_original) {
+      translation = await translate(original, language)
+      item['msgstr'] = [translation]
+      console.log(item, plural_original)
     }
-    str += heading + "\r\n"
-    str += 'msgid "' + msgid + '"\r\n'
-    str += 'msgstr "' + translation + '"\r\n\r\n'
   })
-  console.log(str)  
+  await Promise.all(translationOperations)
+  await savePoFile(po, translatedFilename)
 }
 
-main();
+main()
