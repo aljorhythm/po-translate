@@ -1,8 +1,36 @@
-const createCsvWriter = require('csv-writer').createArrayCsvWriter
-const translate = require('./translate.js')
-const nodePo = require('pofile')
+#!/usr/bin/env node
 
-let language = 'zh-CN'
+const createCsvWriter = require('csv-writer').createArrayCsvWriter
+const translator = require('./translate.js')
+const nodePo = require('pofile')
+let program = require('commander')
+let pjson = require('./package.json')
+ 
+program
+  .version(pjson.version)
+  .option('-f, --file <file>', 'Original po file')
+  .option('-o, --output <output>', 'Output file name')
+  .option('-l, --language <language>', 'Language to translate to')
+  .option('-c, --cache [cache]', 'Cache file', 'translations.json')
+  .parse(process.argv)
+
+let { language, cache, file, output } = program
+
+let options = {
+  language, cache, file, output
+}
+
+Object.keys(options)
+  .forEach(optionKey => {
+    if(!options[optionKey]) {
+      program.outputHelp((help) => "'" + optionKey + "' not supplied\n" + help)
+      process.exit()
+    }
+  })
+
+let translate = translator({
+  cache
+})
 
 function loadPoFile(poFilename) {
   return new Promise((resolve, reject) => {
@@ -34,7 +62,6 @@ async function main(){
     if(plural_original) {
       translation = await translate(original, language)
       item['msgstr'] = [translation]
-      console.log(item, plural_original)
     }
   })
   await Promise.all(translationOperations)
