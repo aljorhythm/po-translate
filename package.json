@@ -1,18 +1,39 @@
 {
   "name": "po-translate",
   "version": "1.0.0",
-  "description": "",
+  "description": "Translate PO files, using cache if available",
   "main": "po_translate.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "bin": {
+    "po-translate": "./po_translate.js"
+  },
+  "author": "Joel Lim",
   "license": "ISC",
   "dependencies": {
+    "commander": "^2.15.1",
     "csv-writer": "^1.0.0",
     "fs-extra": "^6.0.1",
     "google-translate-api": "^2.3.0",
     "json-promise": "^1.1.8",
     "pofile": "^1.0.10"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aljorhythm/po-translate.git"
+  },
+  "keywords": [
+    "pofile",
+    "po",
+    "translate",
+    "google",
+    "cache",
+    "wordpress"
+  ],
+  "bugs": {
+    "url": "https://github.com/aljorhythm/po-translate/issues"
+  },
+  "homepage": "https://github.com/aljorhythm/po-translate#readme"
 }
