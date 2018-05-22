@@ -8,6 +8,7 @@ let pjson = require('./package.json')
  
 program
   .version(pjson.version)
+  .description("Homepage " + pjson.homepage)
   .option('-f, --file <file>', 'Original po file')
   .option('-o, --output <output>', 'Output file name')
   .option('-l, --language <language>', 'Language to translate to')
