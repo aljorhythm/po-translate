@@ -34,7 +34,7 @@ module.exports = (options) => {
     if (!translationsCache) {
       try {
         translationsCache = await retrieveFromStorage(cacheFile)
-      } catch {}
+      } finally {}
       translationsCache = translationsCache || {}
     }
     return translationsCache[str]
