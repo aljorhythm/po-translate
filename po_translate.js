@@ -39,7 +39,10 @@ Object.keys(options)
 
 function loadPoFile(poFilename) {
   return new Promise((resolve, reject) => {
-    nodePo.load(poFilename, (err, po) => resolve(po))
+    nodePo.load(poFilename, (err, po) => {
+      if(err) return reject(err)
+      resolve(po)
+    })
   })
 }
 
@@ -56,7 +59,13 @@ async function main(options) {
     cache,
     output
   } = options
-  const po = await loadPoFile(file)
+
+  let po 
+  try {
+    po = await loadPoFile(file)
+  } catch (e) {
+    return console.error('Error loading file', file)
+  }
 
   let translate = translator({
     cache
