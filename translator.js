@@ -63,8 +63,11 @@ module.exports = (options) => {
   return async function (original, language) {
     var translation = null
     try {
-      translation = await getTranslationFromCache(original, language) || await googleTranslate(original, language)
-      await cacheTranslation(original, translation)
+      translation = await getTranslationFromCache(original, language)
+      if (!translation) {
+        translation = await googleTranslate(original, language)
+        await cacheTranslation(original, translation)      
+      }
     } catch (e) {
       throw e
     }

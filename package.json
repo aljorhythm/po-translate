@@ -1,6 +1,6 @@
 {
   "name": "po-translate",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Translate PO files, using cache if available",
   "main": "po_translate.js",
   "scripts": {
