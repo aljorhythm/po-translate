@@ -6,10 +6,11 @@
 let googleTranslateAPI = require('google-translate-api')
 const fs = require('fs-extra')
 const json = require('json-promise')
+const jsonPrinter = require('format-json')
 
 async function storeToStorage(translationsCache, translations) {
-  let jsonString = await json.stringify(translations)
-  await fs.writeFile(translationsCache, jsonString)
+  let prettyString = jsonPrinter.plain(translations)
+  await fs.writeFile(translationsCache, prettyString)
 }
 
 async function retrieveFromStorage(cacheFile) {
