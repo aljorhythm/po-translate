@@ -60,12 +60,21 @@ module.exports = (options) => {
       .then(res => res.text)
   }
 
+  function sanitizeSprintF(translation) {
+    return translation.replace("％", "%")
+  }
+
+  function sanitizeTranslation(translation) {
+    return sanitizeSprintF(translation)
+  }
+
   return async function (original, language) {
     var translation = null
     try {
       translation = await getTranslationFromCache(original, language)
       if (!translation) {
         translation = await googleTranslate(original, language)
+        translation = await sanitizeTranslation(translation)
         await cacheTranslation(original, translation)      
       }
     } catch (e) {
